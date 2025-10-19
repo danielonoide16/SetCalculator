@@ -77,7 +77,9 @@ class SortedSet:
 
     def is_proper_sub_set(self, other): #check if other is a proper subset of self
         return self.is_sub_set(other) and not self.equals(other)
-
+    
+    def size(self) -> int:
+        return len(self.elements)
 
     def __str__(self):
         result = "{"

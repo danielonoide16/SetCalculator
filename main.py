@@ -10,7 +10,7 @@ def open_new_window_and_close_old(old_window, new_window):
 def main():
     root = tk.Tk()
     root.title("Proyecto Lógic Vol. 2")
-    root.geometry("1280x720")
+    root.geometry(f"{root.winfo_screenwidth()}x{root.winfo_screenheight()}")
     root.resizable(True, True)
     root.configure(bg="#2C3E50")
     root.configure(bg="#2C3E50")

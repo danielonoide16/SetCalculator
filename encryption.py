@@ -1,5 +1,5 @@
 import tkinter as tk
-import sortedset as ss
+import sorted_set as ss
 import utils
 import relation
 
@@ -9,9 +9,9 @@ class EncrypterWindow:
         """crea una ventana emergente modal con un mensaje"""
         popup = tk.Toplevel(self.root)
         popup.title(title)
-        popup.geometry("700x300")
+        #popup.geometry("700x300")
 
-        tk.Label(popup, text=text).pack(pady=20)
+        tk.Label(popup, text=text).pack(padx=30, pady=20)
         tk.Button(popup, text="Cerrar", command=popup.destroy).pack(pady=10)
 
         popup.transient(self.root)
@@ -22,7 +22,7 @@ class EncrypterWindow:
 
     def __init__(self):
         self.root = tk.Tk()
-        self.root.title("Mini Game")
+        self.root.title("Cifrado")
         self.root.geometry(f"{self.root.winfo_screenwidth()}x{self.root.winfo_screenheight()}")
         self.root.resizable(True, True)
         self.root.configure(bg="#2C3E50")
@@ -75,7 +75,7 @@ class EncrypterWindow:
         self.function_results = tk.Text(results_frame, height=7, state="disabled")
         self.function_results.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
 
-        relation_label = tk.Label(results_frame, text="Propiedades de relación", font=("Arial", 18), fg="white", bg="#6C6C6C")
+        relation_label = tk.Label(results_frame, text="Propiedades de relaciones", font=("Arial", 18), fg="white", bg="#6C6C6C")
         relation_label.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
 
         self.relation_results = tk.Text(results_frame, height=7, state="disabled")
@@ -99,7 +99,7 @@ class EncrypterWindow:
 
 
     def generate_results(self):
-        #verify input
+        #VERIFY INPUT
 
         transmitters_text = self.transmitters_input.get()
         keys_text = self.keys_input.get()
@@ -135,12 +135,12 @@ class EncrypterWindow:
         print(keys_set)
         print(receivers_set)
 
-        #Verificar que las conexiones sean válidas
+        #VERIFY CONNECTIONS
         connections_list = utils.text_to_tuples(connections_text)
 
         popup_text = ""
 
-        tuples = []
+        tuples_set = ss.SortedSet()
 
         for t, k, r in connections_list:
             if not transmitters_set.contains(t):
@@ -150,7 +150,7 @@ class EncrypterWindow:
             if not receivers_set.contains(r):
                 popup_text += f"El elemento {r} no está en el conjunto de receptores\n"
 
-            tuples.append((t,r))
+            tuples_set.add((t,r))
 
 
         if popup_text != "":
@@ -158,13 +158,12 @@ class EncrypterWindow:
             return
 
 
-
-        tuples_set = ss.SortedSet(tuples)
+        #tuples_set = ss.SortedSet(tuples)
         print(tuples_set)
         
         rel = relation.Relation(tuples_set, transmitters_set, receivers_set)
 
-        #GENERAR RESULTADOS
+        #GEN RESULTS
 
         self.function_results.configure(state="normal")
         self.relation_results.configure(state="normal")
@@ -174,14 +173,14 @@ class EncrypterWindow:
         self.relation_results.delete("1.0", tk.END)
         self.operations_results.delete("1.0", tk.END)
 
-        #FUNCIONES
+        #FUNCTIONS
         self.function_results.insert("end", "- Es función: " + ("SÍ" if rel.isfunction() else "No") + "\n")
         self.function_results.insert("end", "- Inyectiva: " + ("SÍ" if rel.isinjective() else "No") + "\n")
         self.function_results.insert("end", "- Sobreyectiva: " + ("SÍ" if rel.issurjective() else "No") + "\n")
         self.function_results.insert("end", "- Biyectiva: " + ("SÍ" if rel.isbijective() else "No") + "\n")
 
 
-        #RELACIONES
+        #RELATIONS
         self.relation_results.insert("end", "- Reflexiva: " + ("SÍ" if rel.isreflexive() else "No") + "\n")
         self.relation_results.insert("end", "- Simétrica: " + ("SÍ" if rel.issymmetric() else "No") + "\n")
         self.relation_results.insert("end", "- Transitiva: " + ("SÍ" if rel.istransitive() else "No") + "\n")
@@ -229,5 +228,5 @@ class EncrypterWindow:
 
 
 def main():
-    game = EncrypterWindow()
-    game.root.mainloop()
+    encrypter = EncrypterWindow()
+    encrypter.root.mainloop()

@@ -20,6 +20,7 @@ class EncrypterWindow:
     
 
     def __init__(self):
+        #main window
         self.root = tk.Tk()
         self.root.title("Cifrado")
         self.root.geometry(f"{self.root.winfo_screenwidth()}x{self.root.winfo_screenheight()}")
@@ -163,10 +164,12 @@ class EncrypterWindow:
 
         #GEN RESULTS
 
+        #configurar que se pueda escribir en los textos
         self.function_results.configure(state="normal")
         self.relation_results.configure(state="normal")
         self.operations_results.configure(state="normal")
 
+        #limpiar los textos
         self.function_results.delete("1.0", tk.END)
         self.relation_results.delete("1.0", tk.END)
         self.operations_results.delete("1.0", tk.END)

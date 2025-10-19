@@ -8,6 +8,7 @@ def open_new_window_and_close_old(old_window, new_window):
 
 
 def main():
+    #MAIN WINDOW
     root = tk.Tk()
     root.title("Proyecto Lógic Vol. 2")
     root.geometry(f"{root.winfo_screenwidth()}x{root.winfo_screenheight()}")
@@ -27,7 +28,9 @@ def main():
                          bg="#2C3E50", 
                          fg="#ECF0F1")
     mainLabel.pack(pady=(0, 10))
-    
+
+    #BOTONES
+
     button_frame = tk.Frame(main_frame, bg="#2C3E50")
     button_frame.pack(expand=True)
     
@@ -61,6 +64,8 @@ def main():
                                        **button_style)
     btn2.pack(pady=15)
     
+
+    #FOOTER
     footer_frame = tk.Frame(main_frame, bg="#2C3E50")
     footer_frame.pack(side="bottom", fill="x", pady=20)
     

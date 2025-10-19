@@ -1,5 +1,6 @@
 import bisect
 
+#clase que define un set ordenado (los elementos no se repiten)
 class SortedSet:
 
     def __init__(self, iterable = None):
@@ -75,13 +76,13 @@ class SortedSet:
         return self.elements == other.elements
 
 
-    def is_proper_sub_set(self, other): #check if other is a proper subset of self
+    def is_proper_sub_set(self, other): #check if self is a proper subset of other
         return self.is_sub_set(other) and not self.equals(other)
     
     def size(self) -> int:
         return len(self.elements)
 
-    def __str__(self):
+    def __str__(self): #convierte a string
         result = "{"
         result += ",".join(str(x) for x in self.elements)
         result += "}"
@@ -89,7 +90,7 @@ class SortedSet:
 
 
 
-#example
+#use example
 if __name__ == "__main__":
     setA = SortedSet()
     setA.add(1)

@@ -9,7 +9,6 @@ class EncrypterWindow:
         """crea una ventana emergente modal con un mensaje"""
         popup = tk.Toplevel(self.root)
         popup.title(title)
-        #popup.geometry("700x300")
 
         tk.Label(popup, text=text).pack(padx=30, pady=20)
         tk.Button(popup, text="Cerrar", command=popup.destroy).pack(pady=10)
@@ -87,7 +86,7 @@ class EncrypterWindow:
         self.operations_results = tk.Text(results_frame, height=7, state="disabled", fg="black")
         self.operations_results.grid(row=1, column=2, padx=5, pady=5, sticky="nsew")
 
-        #expansion equitativa
+        #expansion equitativa de las columnas y filas
         results_frame.columnconfigure(0, weight=1)
         results_frame.columnconfigure(1, weight=1)
         results_frame.columnconfigure(2, weight=1)
@@ -131,9 +130,9 @@ class EncrypterWindow:
         keys_set = ss.SortedSet(keys_list)
         receivers_set = ss.SortedSet(utils.text_to_list(receivers_text))
 
-        print(transmitters_set)
-        print(keys_set)
-        print(receivers_set)
+        print(transmitters_set) #debug
+        print(keys_set) #debug
+        print(receivers_set) #debug
 
         #VERIFY CONNECTIONS
         connections_list = utils.text_to_tuples(connections_text)
@@ -157,10 +156,9 @@ class EncrypterWindow:
             self._popup("Conexiones inválidas", popup_text)
             return
 
-
-        #tuples_set = ss.SortedSet(tuples)
-        print(tuples_set)
+        print(tuples_set) #debug
         
+        #Input verified
         rel = relation.Relation(tuples_set, transmitters_set, receivers_set)
 
         #GEN RESULTS
@@ -197,15 +195,8 @@ class EncrypterWindow:
         t_is_sub = transmitters_set.is_sub_set(receivers_set)
         r_is_sub = receivers_set.is_sub_set(transmitters_set)
 
-        t_is_sub = "Si" if t_is_sub else "No"
-        r_is_sub = "Si" if r_is_sub else "No"
-
         t_is_proper_sub = transmitters_set.is_proper_sub_set(receivers_set)
         r_is_proper_sub = receivers_set.is_proper_sub_set(transmitters_set)
-
-        t_is_proper_sub = "Si" if t_is_proper_sub else "No"
-        r_is_proper_sub = "Si" if r_is_proper_sub else "No"        
-
 
         self.operations_results.insert("end", "Unión: " + str(union) + "\n")
         self.operations_results.insert("end", "Intersección: " + str(intersection) + "\n")
@@ -214,12 +205,12 @@ class EncrypterWindow:
         self.operations_results.insert("end", "Diferencia simétrica: " + str(sym_difference) + "\n")
         self.operations_results.insert("end", "Complemento de los emisores: " + str(t_complement) + "\n")
         self.operations_results.insert("end", "Complemento de los receptores: " + str(r_complement) + "\n")
-        self.operations_results.insert("end", "¿Los emisores son subconjunto de los receptores? " + t_is_sub + "\n")
-        self.operations_results.insert("end", "¿Los receptores son subconjunto de los emisores? " + r_is_sub + "\n")
-        self.operations_results.insert("end", "¿Los emisores son subconjunto propio de los receptores? " + t_is_proper_sub + "\n")
-        self.operations_results.insert("end", "¿Los receptores son subconjunto propio de los emisores? " + r_is_proper_sub + "\n")
+        self.operations_results.insert("end", "¿Los emisores son subconjunto de los receptores? " + ("SÍ" if t_is_sub else "No") + "\n")
+        self.operations_results.insert("end", "¿Los receptores son subconjunto de los emisores? " + ("SÍ" if r_is_sub else "No") + "\n") 
+        self.operations_results.insert("end", "¿Los emisores son subconjunto propio de los receptores? " + ("SÍ" if t_is_proper_sub else "No") + "\n")
+        self.operations_results.insert("end", "¿Los receptores son subconjunto propio de los emisores? " + ("SÍ" if r_is_proper_sub else "No") + "\n")
 
-
+        #que no se pueda escribir en el texto
         self.function_results.configure(state="disabled")
         self.relation_results.configure(state="disabled")
         self.operations_results.configure(state="disabled")        

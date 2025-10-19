@@ -2,13 +2,19 @@ import bisect
 
 class SortedSet:
 
-    def __init__(self, otherSortedSet = None):
-        if otherSortedSet is not None:
-            self.elements = otherSortedSet.elements.copy()
-            return
-        
+    def __init__(self, iterable = None):
         self.elements = []
 
+        if iterable is None:
+            return
+        
+        if isinstance(iterable, SortedSet):
+            self.elements = iterable.elements.copy()
+            return
+        
+        for item in iterable:
+            self.add(item)
+        
 
     def add(self, element):
         pos = bisect.bisect_left(self.elements, element)
@@ -74,7 +80,10 @@ class SortedSet:
 
 
     def __str__(self):
-        return " ".join(str(x) for x in self.elements)
+        result = "{"
+        result += ",".join(str(x) for x in self.elements)
+        result += "}"
+        return result
 
 
 

@@ -287,7 +287,6 @@ def btn_borrar_conjunto():
 
 
 
-
 def main():
     global texto_conjuntos, entrada_nombre, entrada_elementos, entrada_cantidad, texto_resultados
     global entrada_conj_a, entrada_conj_b, entrada_multiples

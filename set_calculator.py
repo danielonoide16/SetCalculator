@@ -5,8 +5,8 @@ from sorted_set import SortedSet  # usamos el SortedSet que nos dieron
 
 conjuntos = {}  # aqui guardamos todos los conjuntos creados
 
-#convierte a texto la información de todos los conjuntos
-def get_sets_text() -> str:
+#convierte a texto todos los conjuntos
+def obtener_texto_conjuntos() -> str:
     if len(conjuntos) == 0:
         return "Nada que mostrar.\n"
 
@@ -14,17 +14,12 @@ def get_sets_text() -> str:
     return "\n".join(f"{nombre} = {conjunto} (Cardinalidad: {len(conjunto.elements)})" for nombre, conjunto in conjuntos.items())
 
 
-# muestra un texto un un área de texto
-def set_text(scrolled_text, text):
-    scrolled_text.configure(state="normal")
-    scrolled_text.delete(1.0, tk.END)
-
-    # for nombre, conjunto in conjuntos.items():
-    #     texto = f"{nombre} = {conjunto} (Cardinalidad: {len(conjunto.elements)})\n"
-    #     scrolled_text.insert(tk.END, texto)
-
-    scrolled_text.insert(tk.END, text)
-    scrolled_text.configure(state="disabled")
+# muestra un texto en un área de texto 
+def actualizar_texto(text_area, text):
+    text_area.configure(state="normal")
+    text_area.delete(1.0, tk.END)
+    text_area.insert(tk.END, text)
+    text_area.configure(state="disabled")
 
 # crear conjunto escribiendo elementos separados por comas
 def crear_conjunto_manual(texto):
@@ -74,13 +69,13 @@ def generar_caracteres(cantidad):
 
 
 # devuelve un conjunto con cadenas random
-def generate_strings(amount):
-    amount = min(amount, 15)
+def generar_cadenas(cantidad):
+    cantidad = min(cantidad, 15)
     
     MAX_LENGTH = 10
     
     result = SortedSet()
-    for _ in range(amount):
+    for _ in range(cantidad):
         length = random.randint(1, MAX_LENGTH)
         string = str().join(get_random_char() for _ in range(length))
         result.add(string)
@@ -104,13 +99,13 @@ def btn_crear_manual():
 
     conjuntos[nombre] = conjunto
     messagebox.showinfo("Éxito", f"Conjunto {nombre} creado")
-    set_text(area_texto, get_sets_text())
+    actualizar_texto(texto_conjuntos, obtener_texto_conjuntos())
 
     entrada_nombre.delete(0, tk.END)
     entrada_elementos.delete(0, tk.END)
 
 
-
+#valida que haya un nombre correcto y una cantidad en el rango permitido
 def validar_entrada(nombre_entry, cantidad_entry, max_cantidad):
     nombre = nombre_entry.get().strip()
     if not nombre:
@@ -135,12 +130,12 @@ def generar_conjunto(nombre_entry, cantidad_entry, max_cantidad, generador_func)
 
     conjuntos[nombre] = generador_func(cantidad)
     messagebox.showinfo("Éxito", f"Conjunto {nombre} creado")
-    set_text(area_texto, get_sets_text())
+    actualizar_texto(texto_conjuntos, obtener_texto_conjuntos())
     nombre_entry.delete(0, tk.END)
     #cantidad_entry.delete(0, tk.END)
 
 
-# eventos de botones 
+#botones de generación aleatoria
 def btn_generar_numeros():
     generar_conjunto(entrada_nombre, entrada_cantidad, 30, generar_numeros)
 
@@ -149,10 +144,11 @@ def btn_generar_caracteres():
     generar_conjunto(entrada_nombre, entrada_cantidad, 15, generar_caracteres)
 
 
-def btn_generar_strings():
-    generar_conjunto(entrada_nombre, entrada_cantidad, 15, generate_strings)
+def btn_generar_cadenas():
+    generar_conjunto(entrada_nombre, entrada_cantidad, 15, generar_cadenas)
 
 
+#Operaciones con conjuntos
 def obtener_conjunto(nombre):
     """obtiene un conjunto del diccionario, validando existencia."""
     if nombre not in conjuntos:
@@ -178,7 +174,7 @@ def operar_conjuntos(op, simbolo, mensaje = None):
         resultado = "SÍ" if resultado else "NO"
 
     texto = f"{nombre_a} {simbolo} {nombre_b} {"" if mensaje == None else mensaje} = {resultado}"
-    set_text(result_text, texto)
+    actualizar_texto(texto_resultados, texto)
 
 
 def btn_union():
@@ -215,7 +211,7 @@ def btn_complemento():
         universo = universo.union(c)
 
     resultado = conjunto_a.complement(universo)
-    set_text(result_text, f"{nombre_a}' = {resultado}")
+    actualizar_texto(texto_resultados, f"{nombre_a}' = {resultado}")
     
 
 
@@ -239,7 +235,6 @@ def btn_iguales():
     operar_conjuntos(lambda a, b: a.equals(b), "=", " ¿Son iguales? ")
 
 
-
 def operar_multiples_conjuntos(operacion, simbolo):
     nombres = entrada_multiples.get().strip()
 
@@ -258,7 +253,7 @@ def operar_multiples_conjuntos(operacion, simbolo):
     for nombre in lista_nombres[1:]:
         resultado = operacion(resultado, conjuntos[nombre])
 
-    set_text(result_text, f"{f' {simbolo} '.join(lista_nombres)} = {resultado}")
+    actualizar_texto(texto_resultados, f"{f' {simbolo} '.join(lista_nombres)} = {resultado}")
 
 
 def btn_union_multiple():
@@ -270,13 +265,13 @@ def btn_interseccion_multiple():
 
 
 
-# boton limpiar todo
+# Eventos para los botones limpiar y borrar
 def btn_limpiar():
     respuesta = messagebox.askyesno("Confirmar", "¿Eliminar todos los conjuntos?")
     if respuesta:
         conjuntos.clear()
-        set_text(area_texto, get_sets_text())
-        set_text(result_text, get_sets_text())
+        actualizar_texto(texto_conjuntos, obtener_texto_conjuntos())
+        actualizar_texto(texto_resultados, obtener_texto_conjuntos())
 
 
 def btn_borrar_conjunto():
@@ -288,13 +283,13 @@ def btn_borrar_conjunto():
     
     del conjuntos[nombre]
     messagebox.showinfo("Éxito", "Conjunto eliminado correctamente")
-    set_text(area_texto, get_sets_text())
+    actualizar_texto(texto_conjuntos, obtener_texto_conjuntos())
 
 
 
 
 def main():
-    global area_texto, entrada_nombre, entrada_elementos, entrada_cantidad, result_text
+    global texto_conjuntos, entrada_nombre, entrada_elementos, entrada_cantidad, texto_resultados
     global entrada_conj_a, entrada_conj_b, entrada_multiples
 
     root = tk.Tk()
@@ -346,7 +341,7 @@ def main():
              font=("Arial", 12, "bold")).pack(side=tk.LEFT, padx=5)
     
 
-    tk.Button(frame_aleatorio, text="Generar Cadenas", command=btn_generar_strings,
+    tk.Button(frame_aleatorio, text="Generar Cadenas", command=btn_generar_cadenas,
             font=("Arial", 12, "bold")).pack(side=tk.LEFT, padx=5)
 
     # seccion seleccionar A y B
@@ -395,9 +390,9 @@ def main():
     tk.Label(root, text="CONJUNTOS CREADOS:", font=("Arial", 14, "bold"),
              bg="#2C3E50", fg="white").pack(pady=10)
 
-    area_texto = scrolledtext.ScrolledText(root, height=8, width=100, bg="white",
+    texto_conjuntos = scrolledtext.ScrolledText(root, height=8, width=100, bg="white",
                                            fg="#2C3E50", font=("Arial", 12), state="disabled")
-    area_texto.pack(pady=10)
+    texto_conjuntos.pack(pady=10)
 
     # boton limpiar
     tk.Button(root, text="Limpiar Todo", command=btn_limpiar,
@@ -407,13 +402,13 @@ def main():
     tk.Label(root, text="RESULTADOS:", font=("Arial", 14, "bold"),
              bg="#2C3E50", fg="white").pack(pady=10)
     
-    result_text = scrolledtext.ScrolledText(root, height=8, width =100,bg="white",
+    texto_resultados = scrolledtext.ScrolledText(root, height=8, width =100,bg="white",
                                            fg="#2C3E50", font=("Arial", 12), state="disabled")
 
-    result_text.pack(pady=10)
+    texto_resultados.pack(pady=10)
 
-    set_text(area_texto, get_sets_text())
-    set_text(result_text, get_sets_text())
+    actualizar_texto(texto_conjuntos, obtener_texto_conjuntos())
+    actualizar_texto(texto_resultados, obtener_texto_conjuntos())
     root.mainloop()
 
 

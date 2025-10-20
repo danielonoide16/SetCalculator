@@ -5,6 +5,26 @@ from sorted_set import SortedSet  # usamos el SortedSet que nos dieron
 
 conjuntos = {}  # aqui guardamos todos los conjuntos creados
 
+#convierte a texto la información de todos los conjuntos
+def get_sets_text() -> str:
+    if len(conjuntos) == 0:
+        return "Nada que mostrar.\n"
+
+
+    return "\n".join(f"{nombre} = {conjunto} (Cardinalidad: {len(conjunto.elements)})" for nombre, conjunto in conjuntos.items())
+
+
+# muestra un texto un un área de texto
+def set_text(scrolled_text, text):
+    scrolled_text.configure(state="normal")
+    scrolled_text.delete(1.0, tk.END)
+
+    # for nombre, conjunto in conjuntos.items():
+    #     texto = f"{nombre} = {conjunto} (Cardinalidad: {len(conjunto.elements)})\n"
+    #     scrolled_text.insert(tk.END, texto)
+
+    scrolled_text.insert(tk.END, text)
+    scrolled_text.configure(state="disabled")
 
 # crear conjunto escribiendo elementos separados por comas
 def crear_conjunto_manual(texto):
@@ -22,10 +42,9 @@ def crear_conjunto_manual(texto):
     return conjunto
 
 
-# genera numeros random del 1 al 100
+# genera un conjunto de numeros random del 1 al 100
 def generar_numeros(cantidad):
-    if cantidad > 30:
-        cantidad = 30
+    cantidad = min(cantidad, 30)
 
     conjunto = SortedSet()
     while len(conjunto.elements) < cantidad:
@@ -69,21 +88,6 @@ def generate_strings(amount):
     return result
 
 
-# muestra los conjuntos en el area de texto
-def actualizar_vista():
-    area_texto.configure(state="normal")
-    area_texto.delete(1.0, tk.END)
-
-    if len(conjuntos) == 0:
-        area_texto.insert(tk.END, "No hay conjuntos creados.\n")
-    else:
-        for nombre, conjunto in conjuntos.items():
-            texto = f"{nombre} = {conjunto} (Cardinalidad: {len(conjunto.elements)})\n"
-            area_texto.insert(tk.END, texto)
-
-    area_texto.configure(state="disabled")
-
-
 # boton para crear conjunto escribiendo elementos
 def btn_crear_manual():
     nombre = entrada_nombre.get().strip()
@@ -100,7 +104,7 @@ def btn_crear_manual():
 
     conjuntos[nombre] = conjunto
     messagebox.showinfo("Éxito", f"Conjunto {nombre} creado")
-    actualizar_vista()
+    set_text(area_texto, get_sets_text())
 
     entrada_nombre.delete(0, tk.END)
     entrada_elementos.delete(0, tk.END)
@@ -131,7 +135,7 @@ def generar_conjunto(nombre_entry, cantidad_entry, max_cantidad, generador_func)
 
     conjuntos[nombre] = generador_func(cantidad)
     messagebox.showinfo("Éxito", f"Conjunto {nombre} creado")
-    actualizar_vista()
+    set_text(area_texto, get_sets_text())
     nombre_entry.delete(0, tk.END)
     #cantidad_entry.delete(0, tk.END)
 
@@ -149,181 +153,121 @@ def btn_generar_strings():
     generar_conjunto(entrada_nombre, entrada_cantidad, 15, generate_strings)
 
 
-# boton union A U B
+def obtener_conjunto(nombre):
+    """obtiene un conjunto del diccionario, validando existencia."""
+    if nombre not in conjuntos:
+        return None, f"El conjunto '{nombre}' no existe."
+    return conjuntos[nombre], ""
+
+
+def operar_conjuntos(op, simbolo, mensaje = None):
+    """funcion generica para realizar operaciones binarias entre conjuntos."""
+    nombre_a = entrada_conj_a.get().strip()
+    nombre_b = entrada_conj_b.get().strip()
+
+    conjunto_a, error_a = obtener_conjunto(nombre_a)
+    conjunto_b, error_b = obtener_conjunto(nombre_b)
+
+    errores = [msg for msg in [error_a, error_b] if msg]
+    if errores:
+        messagebox.showerror("Error", "\n".join(errores))
+        return
+
+    resultado = op(conjunto_a, conjunto_b)
+    if isinstance(resultado, bool):
+        resultado = "SÍ" if resultado else "NO"
+
+    texto = f"{nombre_a} {simbolo} {nombre_b} {"" if mensaje == None else mensaje} = {resultado}"
+    set_text(result_text, texto)
+
+
 def btn_union():
-    nombre_a = entrada_conj_a.get().strip()
-    nombre_b = entrada_conj_b.get().strip()
-
-    if nombre_a not in conjuntos or nombre_b not in conjuntos:
-        messagebox.showerror("Error", "Conjuntos no existen")
-        return
-
-    resultado = conjuntos[nombre_a].union(conjuntos[nombre_b])  # usa el metodo de SortedSet
-    messagebox.showinfo("Resultado", f"{nombre_a} ∪ {nombre_b} = {resultado}")
+    operar_conjuntos(lambda a, b: a.union(b), "∪")
 
 
-# boton interseccion A ∩ B
 def btn_interseccion():
-    nombre_a = entrada_conj_a.get().strip()
-    nombre_b = entrada_conj_b.get().strip()
-
-    if nombre_a not in conjuntos or nombre_b not in conjuntos:
-        messagebox.showerror("Error", "Conjuntos no existen")
-        return
-
-    resultado = conjuntos[nombre_a].intersection(conjuntos[nombre_b])  # usa el metodo de SortedSet
-    messagebox.showinfo("Resultado", f"{nombre_a} ∩ {nombre_b} = {resultado}")
+    operar_conjuntos(lambda a, b: a.intersection(b), "∩")
 
 
-# boton diferencia A - B
 def btn_diferencia():
-    nombre_a = entrada_conj_a.get().strip()
-    nombre_b = entrada_conj_b.get().strip()
-
-    if nombre_a not in conjuntos or nombre_b not in conjuntos:
-        messagebox.showerror("Error", "Conjuntos no existen")
-        return
-
-    resultado = conjuntos[nombre_a].difference(conjuntos[nombre_b])  # usa el metodo de SortedSet
-    messagebox.showinfo("Resultado", f"{nombre_a} - {nombre_b} = {resultado}")
+    operar_conjuntos(lambda a, b: a.difference(b), "-")
 
 
-# boton diferencia simetrica A Δ B
 def btn_diferencia_simetrica():
-    nombre_a = entrada_conj_a.get().strip()
-    nombre_b = entrada_conj_b.get().strip()
-
-    if nombre_a not in conjuntos or nombre_b not in conjuntos:
-        messagebox.showerror("Error", "Conjuntos no existen")
-        return
-
-    resultado = conjuntos[nombre_a].sym_difference(conjuntos[nombre_b])  # usa el metodo de SortedSet
-    messagebox.showinfo("Resultado", f"{nombre_a} Δ {nombre_b} = {resultado}")
+    operar_conjuntos(lambda a, b: a.sym_difference(b), "Δ")
 
 
-# boton complemento A'
 def btn_complemento():
     nombre_a = entrada_conj_a.get().strip()
 
-    if nombre_a not in conjuntos:
-        messagebox.showerror("Error", "Conjunto no existe")
+    conjunto_a, error = obtener_conjunto(nombre_a)
+    if error:
+        messagebox.showerror("Error", error)
         return
 
-    # el universo son todos los elementos de todos los conjuntos
-    if len(conjuntos) == 0:
+    if not conjuntos:
+        messagebox.showerror("Error", "No hay conjuntos definidos para formar el universo")
         return
 
-    lista_conjuntos = list(conjuntos.values())
-    universo = lista_conjuntos[0]
-    for i in range(1, len(lista_conjuntos)):
-        universo = universo.union(lista_conjuntos[i])
+    # el universo se forma con la unión de todos los conjuntos existentes
+    universo = list(conjuntos.values())[0]
+    for c in list(conjuntos.values())[1:]:
+        universo = universo.union(c)
 
-    resultado = conjuntos[nombre_a].complement(universo)  # usa el metodo de SortedSet
-    messagebox.showinfo("Resultado", f"{nombre_a}' = {resultado}")
+    resultado = conjunto_a.complement(universo)
+    set_text(result_text, f"{nombre_a}' = {resultado}")
+    
 
 
 # boton verificar si A esta contenido en B
 def btn_subconjunto():
-    nombre_a = entrada_conj_a.get().strip()
-    nombre_b = entrada_conj_b.get().strip()
-
-    if nombre_a not in conjuntos or nombre_b not in conjuntos:
-        messagebox.showerror("Error", "Conjuntos no existen")
-        return
-
-    resultado = conjuntos[nombre_a].is_sub_set(conjuntos[nombre_b])  # usa el metodo de SortedSet
-    respuesta = "SÍ" if resultado else "NO"
-    messagebox.showinfo("Verificación", f"¿{nombre_a} ⊆ {nombre_b}?\n{respuesta}")
+    operar_conjuntos(lambda a, b: a.is_sub_set(b), "⊆")
 
 
 # boton verificar si A esta contenido propio en B
 def btn_subconjunto_propio():
-    nombre_a = entrada_conj_a.get().strip()
-    nombre_b = entrada_conj_b.get().strip()
-
-    if nombre_a not in conjuntos or nombre_b not in conjuntos:
-        messagebox.showerror("Error", "Conjuntos no existen")
-        return
-
-    resultado = conjuntos[nombre_a].is_proper_sub_set(conjuntos[nombre_b])  # usa el metodo de SortedSet
-    respuesta = "SÍ" if resultado else "NO"
-    messagebox.showinfo("Verificación", f"¿{nombre_a} ⊂ {nombre_b}?\n{respuesta}")
+    operar_conjuntos(lambda a, b: a.is_proper_sub_set(b), "⊂")
 
 
 # boton verificar si son disjuntos (no tienen nada en comun)
 def btn_disjuntos():
-    nombre_a = entrada_conj_a.get().strip()
-    nombre_b = entrada_conj_b.get().strip()
-
-    if nombre_a not in conjuntos or nombre_b not in conjuntos:
-        messagebox.showerror("Error", "Conjuntos no existen")
-        return
-
-    # disjuntos = la interseccion esta vacia
-    interseccion = conjuntos[nombre_a].intersection(conjuntos[nombre_b])
-    resultado = len(interseccion.elements) == 0
-    respuesta = "SÍ" if resultado else "NO"
-    messagebox.showinfo("Verificación", f"¿Son disjuntos?\n{respuesta}")
+    operar_conjuntos(lambda a, b: len(a.intersection(b).elements) == 0, "y", " ¿Son disjuntos? ")
 
 
 # boton verificar si son iguales
 def btn_iguales():
-    nombre_a = entrada_conj_a.get().strip()
-    nombre_b = entrada_conj_b.get().strip()
+    operar_conjuntos(lambda a, b: a.equals(b), "=", " ¿Son iguales? ")
 
-    if nombre_a not in conjuntos or nombre_b not in conjuntos:
-        messagebox.showerror("Error", "Conjuntos no existen")
+
+
+def operar_multiples_conjuntos(operacion, simbolo):
+    nombres = entrada_multiples.get().strip()
+
+    if not nombres:
+        messagebox.showerror("Error", "Ingresa nombres separados por comas")
         return
 
-    resultado = conjuntos[nombre_a].equals(conjuntos[nombre_b])  # usa el metodo de SortedSet
-    respuesta = "SÍ" if resultado else "NO"
-    messagebox.showinfo("Verificación", f"¿{nombre_a} = {nombre_b}?\n{respuesta}")
+    lista_nombres = [n.strip() for n in nombres.split(',')]
+    faltantes = [n for n in lista_nombres if n not in conjuntos]
+
+    if faltantes:
+        messagebox.showerror("Error", f"Los conjuntos no existen: {', '.join(faltantes)}")
+        return
+
+    resultado = conjuntos[lista_nombres[0]]
+    for nombre in lista_nombres[1:]:
+        resultado = operacion(resultado, conjuntos[nombre])
+
+    set_text(result_text, f"{f' {simbolo} '.join(lista_nombres)} = {resultado}")
 
 
-# boton union de varios conjuntos
 def btn_union_multiple():
-    nombres = entrada_multiples.get().strip()
-
-    if nombres == '':
-        messagebox.showerror("Error", "Ingresa nombres separados por comas")
-        return
-
-    lista_nombres = [n.strip() for n in nombres.split(',')]
-
-    for nombre in lista_nombres:
-        if nombre not in conjuntos:
-            messagebox.showerror("Error", f"Conjunto {nombre} no existe")
-            return
-
-    # union de varios conjuntos
-    resultado = conjuntos[lista_nombres[0]]
-    for i in range(1, len(lista_nombres)):
-        resultado = resultado.union(conjuntos[lista_nombres[i]])
-
-    messagebox.showinfo("Resultado", f"{' ∪ '.join(lista_nombres)} = {resultado}")
+    operar_multiples_conjuntos(lambda a, b: a.union(b), "∪")
 
 
-# boton interseccion de varios conjuntos
 def btn_interseccion_multiple():
-    nombres = entrada_multiples.get().strip()
+    operar_multiples_conjuntos(lambda a, b: a.intersection(b), "∩")
 
-    if nombres == '':
-        messagebox.showerror("Error", "Ingresa nombres separados por comas")
-        return
-
-    lista_nombres = [n.strip() for n in nombres.split(',')]
-
-    for nombre in lista_nombres:
-        if nombre not in conjuntos:
-            messagebox.showerror("Error", f"Conjunto {nombre} no existe")
-            return
-
-    # interseccion de varios conjuntos
-    resultado = conjuntos[lista_nombres[0]]
-    for i in range(1, len(lista_nombres)):
-        resultado = resultado.intersection(conjuntos[lista_nombres[i]])
-
-    messagebox.showinfo("Resultado", f"{' ∩ '.join(lista_nombres)} = {resultado}")
 
 
 # boton limpiar todo
@@ -331,7 +275,8 @@ def btn_limpiar():
     respuesta = messagebox.askyesno("Confirmar", "¿Eliminar todos los conjuntos?")
     if respuesta:
         conjuntos.clear()
-        actualizar_vista()
+        set_text(area_texto, get_sets_text())
+        set_text(result_text, get_sets_text())
 
 
 def btn_borrar_conjunto():
@@ -343,13 +288,13 @@ def btn_borrar_conjunto():
     
     del conjuntos[nombre]
     messagebox.showinfo("Éxito", "Conjunto eliminado correctamente")
-    actualizar_vista()
+    set_text(area_texto, get_sets_text())
 
 
 
 
 def main():
-    global area_texto, entrada_nombre, entrada_elementos, entrada_cantidad
+    global area_texto, entrada_nombre, entrada_elementos, entrada_cantidad, result_text
     global entrada_conj_a, entrada_conj_b, entrada_multiples
 
     root = tk.Tk()
@@ -457,9 +402,18 @@ def main():
     # boton limpiar
     tk.Button(root, text="Limpiar Todo", command=btn_limpiar,
              font=("Arial", 12, "bold"), width=15).pack(pady=10)
+    
+    #area de resultados
+    tk.Label(root, text="RESULTADOS:", font=("Arial", 14, "bold"),
+             bg="#2C3E50", fg="white").pack(pady=10)
+    
+    result_text = scrolledtext.ScrolledText(root, height=8, width =100,bg="white",
+                                           fg="#2C3E50", font=("Arial", 12), state="disabled")
 
-    actualizar_vista()
+    result_text.pack(pady=10)
 
+    set_text(area_texto, get_sets_text())
+    set_text(result_text, get_sets_text())
     root.mainloop()
 
 

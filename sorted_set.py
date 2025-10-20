@@ -84,7 +84,7 @@ class SortedSet:
 
     def __str__(self): #convierte a string
         result = "{"
-        result += ",".join(str(x) for x in self.elements)
+        result += ", ".join(str(x) for x in self.elements)
         result += "}"
         return result
 

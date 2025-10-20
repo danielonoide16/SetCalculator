@@ -35,19 +35,38 @@ def generar_numeros(cantidad):
     return conjunto
 
 
-# genera letras y simbolos random
-def generar_caracteres(cantidad):
-    if cantidad > 15:
-        cantidad = 15
+#devuelve un caracter alfanumerico o simbolo aleatorio
+def get_random_char() -> str:
+    chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%&*+-=?'
+    return random.choice(chars)
 
-    opciones = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%&*+-=?'
+
+# devuelve un conjunto con letras y simbolos random
+def generar_caracteres(cantidad):
+    cantidad = min(cantidad, 15)
+
     conjunto = SortedSet()
 
     while len(conjunto.elements) < cantidad:
-        char = random.choice(opciones)
+        char = get_random_char()
         conjunto.add(char)  # add ya evita duplicados
 
     return conjunto
+
+
+# devuelve un conjunto con cadenas random
+def generate_strings(amount):
+    amount = min(amount, 15)
+    
+    MAX_LENGTH = 10
+    
+    result = SortedSet()
+    for _ in range(amount):
+        length = random.randint(1, MAX_LENGTH)
+        string = str().join(get_random_char() for _ in range(length))
+        result.add(string)
+    
+    return result
 
 
 # muestra los conjuntos en el area de texto
@@ -87,48 +106,47 @@ def btn_crear_manual():
     entrada_elementos.delete(0, tk.END)
 
 
-# boton para generar numeros random
+
+def validar_entrada(nombre_entry, cantidad_entry, max_cantidad):
+    nombre = nombre_entry.get().strip()
+    if not nombre:
+        messagebox.showerror("Error", "Escribe un nombre")
+        return None, None
+
+    try:
+        cantidad = int(cantidad_entry.get())
+        if not (1 <= cantidad <= max_cantidad):
+            raise ValueError
+    except ValueError:
+        messagebox.showerror("Error", f"Cantidad entre 1 y {max_cantidad}")
+        return None, None
+
+    return nombre, cantidad
+
+
+def generar_conjunto(nombre_entry, cantidad_entry, max_cantidad, generador_func):
+    nombre, cantidad = validar_entrada(nombre_entry, cantidad_entry, max_cantidad)
+    if nombre is None:
+        return  # hubo error en validación
+
+    conjuntos[nombre] = generador_func(cantidad)
+    messagebox.showinfo("Éxito", f"Conjunto {nombre} creado")
+    actualizar_vista()
+    nombre_entry.delete(0, tk.END)
+    #cantidad_entry.delete(0, tk.END)
+
+
+# eventos de botones 
 def btn_generar_numeros():
-    nombre = entrada_nombre.get().strip()
-
-    if nombre == '':
-        messagebox.showerror("Error", "Escribe un nombre")
-        return
-
-    try:
-        cantidad = int(entrada_cantidad.get())
-        if cantidad <= 0 or cantidad > 30:
-            raise ValueError
-    except:
-        messagebox.showerror("Error", "Cantidad entre 1 y 30")
-        return
-
-    conjuntos[nombre] = generar_numeros(cantidad)
-    messagebox.showinfo("Éxito", f"Conjunto {nombre} creado")
-    actualizar_vista()
-    entrada_nombre.delete(0, tk.END)
+    generar_conjunto(entrada_nombre, entrada_cantidad, 30, generar_numeros)
 
 
-# boton para generar caracteres random
 def btn_generar_caracteres():
-    nombre = entrada_nombre.get().strip()
+    generar_conjunto(entrada_nombre, entrada_cantidad, 15, generar_caracteres)
 
-    if nombre == '':
-        messagebox.showerror("Error", "Escribe un nombre")
-        return
 
-    try:
-        cantidad = int(entrada_cantidad.get())
-        if cantidad <= 0 or cantidad > 15:
-            raise ValueError
-    except:
-        messagebox.showerror("Error", "Cantidad entre 1 y 15")
-        return
-
-    conjuntos[nombre] = generar_caracteres(cantidad)
-    messagebox.showinfo("Éxito", f"Conjunto {nombre} creado")
-    actualizar_vista()
-    entrada_nombre.delete(0, tk.END)
+def btn_generar_strings():
+    generar_conjunto(entrada_nombre, entrada_cantidad, 15, generate_strings)
 
 
 # boton union A U B
@@ -316,6 +334,20 @@ def btn_limpiar():
         actualizar_vista()
 
 
+def btn_borrar_conjunto():
+    nombre = entrada_nombre.get().strip()
+
+    if nombre not in conjuntos:
+        messagebox.showerror("Error", "Conjunto no encontrado")
+        return
+    
+    del conjuntos[nombre]
+    messagebox.showinfo("Éxito", "Conjunto eliminado correctamente")
+    actualizar_vista()
+
+
+
+
 def main():
     global area_texto, entrada_nombre, entrada_elementos, entrada_cantidad
     global entrada_conj_a, entrada_conj_b, entrada_multiples
@@ -350,6 +382,9 @@ def main():
 
     tk.Button(frame_crear, text="Crear Manual", command=btn_crear_manual,
              font=("Arial", 12, "bold")).pack(side=tk.LEFT, padx=5)
+    
+    tk.Button(frame_crear, text="Eliminar conjunto", command=btn_borrar_conjunto,
+              font=("Arial", 12, "bold")).pack(side=tk.LEFT, padx=5)
 
     # seccion aleatorios
     frame_aleatorio = tk.Frame(root, bg="#2C3E50")
@@ -364,6 +399,10 @@ def main():
              font=("Arial", 12, "bold")).pack(side=tk.LEFT, padx=5)
     tk.Button(frame_aleatorio, text="Generar Caracteres", command=btn_generar_caracteres,
              font=("Arial", 12, "bold")).pack(side=tk.LEFT, padx=5)
+    
+
+    tk.Button(frame_aleatorio, text="Generar Cadenas", command=btn_generar_strings,
+            font=("Arial", 12, "bold")).pack(side=tk.LEFT, padx=5)
 
     # seccion seleccionar A y B
     frame_ab = tk.Frame(root, bg="#2C3E50")

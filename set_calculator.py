@@ -123,6 +123,7 @@ def validar_entrada(nombre_entry, cantidad_entry, max_cantidad):
     return nombre, cantidad
 
 
+#genera un conjunto según la función que se le pase como parámetro
 def generar_conjunto(nombre_entry, cantidad_entry, max_cantidad, generador_func):
     nombre, cantidad = validar_entrada(nombre_entry, cantidad_entry, max_cantidad)
     if nombre is None:
@@ -284,6 +285,8 @@ def btn_borrar_conjunto():
     del conjuntos[nombre]
     messagebox.showinfo("Éxito", "Conjunto eliminado correctamente")
     actualizar_texto(texto_conjuntos, obtener_texto_conjuntos())
+
+
 
 
 

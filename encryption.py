@@ -1,7 +1,7 @@
 import tkinter as tk
-import sorted_set as ss
+from sorted_set import SortedSet
 import utils
-import relation
+from relation import Relation
 
 class EncrypterWindow:
 
@@ -127,9 +127,9 @@ class EncrypterWindow:
             self._popup("Entrada inválida", "Las llaves solo pueden ser enteros")
             return
 
-        transmitters_set = ss.SortedSet(utils.text_to_list(transmitters_text))
-        keys_set = ss.SortedSet(keys_list)
-        receivers_set = ss.SortedSet(utils.text_to_list(receivers_text))
+        transmitters_set = SortedSet(utils.text_to_list(transmitters_text))
+        keys_set = SortedSet(keys_list)
+        receivers_set = SortedSet(utils.text_to_list(receivers_text))
 
         print(transmitters_set) #debug
         print(keys_set) #debug
@@ -140,8 +140,8 @@ class EncrypterWindow:
 
         popup_text = ""
 
-        tuples_set = ss.SortedSet()
-
+        tuples_set = SortedSet()
+        
         for t, k, r in connections_list:
             if not transmitters_set.contains(t):
                 popup_text += f"El elemento {t} no está en el conjunto de emisores\n"
@@ -160,7 +160,7 @@ class EncrypterWindow:
         print(tuples_set) #debug
         
         #Input verified
-        rel = relation.Relation(tuples_set, transmitters_set, receivers_set)
+        rel = Relation(tuples_set, transmitters_set, receivers_set)
 
         #GEN RESULTS
 

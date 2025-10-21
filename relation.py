@@ -1,4 +1,4 @@
-import sorted_set as ss
+from sorted_set import SortedSet
 
 class Relation:
 
@@ -43,7 +43,7 @@ class Relation:
         if not self.isfunction():
             return False
 
-        image = ss.SortedSet()
+        image = SortedSet()
         for x, y in self.pairs.elements:
             image.add(y)
         return image.equals(self.codomain)# or image.is_sub_set(self.codomain)
